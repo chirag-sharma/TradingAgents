@@ -1,8 +1,8 @@
 from typing import Annotated, Dict
 from .reddit_utils import fetch_top_from_category
-from .yfin_utils import *
-from .stockstats_utils import *
-from .googlenews_utils import *
+from .yfin_utils import YFinanceUtils
+from .stockstats_utils import StockstatsUtils
+from .googlenews_utils import getNewsData
 from .finnhub_utils import get_data_in_range
 from dateutil.relativedelta import relativedelta
 from concurrent.futures import ThreadPoolExecutor
@@ -14,6 +14,16 @@ from tqdm import tqdm
 import yfinance as yf
 from openai import OpenAI
 from .config import get_config, set_config, DATA_DIR
+
+# Import Indian market utilities
+try:
+    from .indian_market_utils import IndianMarketUtils, add_indian_suffix, AlphaVantageIndian
+    from .indian_news_utils import IndianNewsUtils, get_indian_stock_news_summary
+    from .indian_technical_utils import IndianTechnicalAnalysis
+    INDIAN_MODULES_AVAILABLE = True
+except ImportError as e:
+    print(f"Indian modules not available: {e}")
+    INDIAN_MODULES_AVAILABLE = False
 
 
 def get_finnhub_news(

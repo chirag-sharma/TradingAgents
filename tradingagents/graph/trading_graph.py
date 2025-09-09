@@ -111,48 +111,100 @@ class TradingAgentsGraph:
 
     def _create_tool_nodes(self) -> Dict[str, ToolNode]:
         """Create tool nodes for different data sources."""
-        return {
-            "market": ToolNode(
-                [
-                    # online tools
-                    self.toolkit.get_YFin_data_online,
-                    self.toolkit.get_stockstats_indicators_report_online,
-                    # offline tools
-                    self.toolkit.get_YFin_data,
-                    self.toolkit.get_stockstats_indicators_report,
-                ]
-            ),
-            "social": ToolNode(
-                [
-                    # online tools
-                    self.toolkit.get_stock_news_openai,
-                    # offline tools
-                    self.toolkit.get_reddit_stock_info,
-                ]
-            ),
-            "news": ToolNode(
-                [
-                    # online tools
-                    self.toolkit.get_global_news_openai,
-                    self.toolkit.get_google_news,
-                    # offline tools
-                    self.toolkit.get_finnhub_news,
-                    self.toolkit.get_reddit_news,
-                ]
-            ),
-            "fundamentals": ToolNode(
-                [
-                    # online tools
-                    self.toolkit.get_fundamentals_openai,
-                    # offline tools
-                    self.toolkit.get_finnhub_company_insider_sentiment,
-                    self.toolkit.get_finnhub_company_insider_transactions,
-                    self.toolkit.get_simfin_balance_sheet,
-                    self.toolkit.get_simfin_cashflow,
-                    self.toolkit.get_simfin_income_stmt,
-                ]
-            ),
-        }
+        
+        # Check if we're in Indian market mode
+        is_indian_market = self.config.get("market", "us").lower() == "india"
+        
+        if is_indian_market:
+            # Indian market tool nodes
+            return {
+                "market": ToolNode(
+                    [
+                        # Indian market tools
+                        self.toolkit.get_indian_stock_data_online,
+                        self.toolkit.get_indian_technical_analysis_online,
+                        self.toolkit.get_indian_market_indices_online,
+                        # Fallback to global tools if needed
+                        self.toolkit.get_YFin_data_online,
+                        self.toolkit.get_stockstats_indicators_report_online,
+                    ]
+                ),
+                "social": ToolNode(
+                    [
+                        # Indian news and social tools
+                        self.toolkit.get_indian_financial_news_online,
+                        # Fallback to global tools
+                        self.toolkit.get_stock_news_openai,
+                        self.toolkit.get_reddit_stock_info,
+                    ]
+                ),
+                "news": ToolNode(
+                    [
+                        # Indian news tools
+                        self.toolkit.get_indian_financial_news_online,
+                        # Global news tools
+                        self.toolkit.get_global_news_openai,
+                        self.toolkit.get_google_news,
+                        self.toolkit.get_finnhub_news,
+                        self.toolkit.get_reddit_news,
+                    ]
+                ),
+                "fundamentals": ToolNode(
+                    [
+                        # Indian company info and analysis
+                        self.toolkit.get_indian_company_info_online,
+                        self.toolkit.get_indian_peer_comparison_online,
+                        # Fallback to global tools
+                        self.toolkit.get_fundamentals_openai,
+                        self.toolkit.get_finnhub_company_insider_sentiment,
+                        self.toolkit.get_finnhub_company_insider_transactions,
+                    ]
+                ),
+            }
+        else:
+            # Original US market tool nodes
+            return {
+                "market": ToolNode(
+                    [
+                        # online tools
+                        self.toolkit.get_YFin_data_online,
+                        self.toolkit.get_stockstats_indicators_report_online,
+                        # offline tools
+                        self.toolkit.get_YFin_data,
+                        self.toolkit.get_stockstats_indicators_report,
+                    ]
+                ),
+                "social": ToolNode(
+                    [
+                        # online tools
+                        self.toolkit.get_stock_news_openai,
+                        # offline tools
+                        self.toolkit.get_reddit_stock_info,
+                    ]
+                ),
+                "news": ToolNode(
+                    [
+                        # online tools
+                        self.toolkit.get_global_news_openai,
+                        self.toolkit.get_google_news,
+                        # offline tools
+                        self.toolkit.get_finnhub_news,
+                        self.toolkit.get_reddit_news,
+                    ]
+                ),
+                "fundamentals": ToolNode(
+                    [
+                        # online tools
+                        self.toolkit.get_fundamentals_openai,
+                        # offline tools
+                        self.toolkit.get_finnhub_company_insider_sentiment,
+                        self.toolkit.get_finnhub_company_insider_transactions,
+                        self.toolkit.get_simfin_balance_sheet,
+                        self.toolkit.get_simfin_cashflow,
+                        self.toolkit.get_simfin_income_stmt,
+                    ]
+                ),
+            }
 
     def propagate(self, company_name, trade_date):
         """Run the trading agents graph for a company on a specific date."""

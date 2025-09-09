@@ -28,6 +28,168 @@
 # TradingAgents: Multi-Agents LLM Financial Trading Framework 
 
 > 🎉 **TradingAgents** officially released! We have received numerous inquiries about the work, and we would like to express our thanks for the enthusiasm in our community.
+
+**TradingAgents** is a comprehensive multi-agent framework for financial trading that leverages Large Language Models (LLMs) to provide intelligent market analysis and trading decisions. The framework supports both **US** and **Indian** equity markets with sophisticated agent-based collaboration.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.10 or higher
+- Valid API keys for your chosen LLM provider (OpenAI, Google, Anthropic)
+- Optional: Additional API keys for enhanced data sources
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/TauricResearch/TradingAgents.git
+   cd TradingAgents
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pip install -e .
+   ```
+
+3. **🔑 Configure API Keys (Required):**
+
+   **Option A: Environment Variables (Recommended)**
+   ```bash
+   # Choose ONE LLM provider:
+   
+   # OpenAI (GPT-4, etc.)
+   export OPENAI_API_KEY="sk-your-openai-api-key-here"
+   export TRADINGAGENTS_LLM_PROVIDER="openai"
+   
+   # OR Google Gemini
+   export GOOGLE_API_KEY="your-google-api-key-here" 
+   export TRADINGAGENTS_LLM_PROVIDER="google"
+   
+   # OR Anthropic Claude
+   export ANTHROPIC_API_KEY="sk-ant-your-anthropic-api-key-here"
+   export TRADINGAGENTS_LLM_PROVIDER="anthropic"
+   
+   # Market selection
+   export TRADINGAGENTS_MARKET="us"  # or "india"
+   ```
+
+   **Option B: Use Setup Script**
+   ```bash
+   # Copy and customize the environment setup
+   cp setup_env.sh my_setup.sh
+   # Edit my_setup.sh with your API keys
+   source my_setup.sh
+   ```
+
+   **Option C: .env File**
+   ```bash
+   # Copy the example and fill in your keys
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
+
+4. **🔍 Validate Setup:**
+   ```bash
+   python validate_setup.py
+   ```
+
+### Basic Usage
+
+**For US Markets:**
+```bash
+export TRADINGAGENTS_MARKET="us"
+python main.py
+```
+
+**For Indian Markets:**
+```bash
+export TRADINGAGENTS_MARKET="india"
+python main.py
+```
+
+**Using the CLI:**
+```bash
+python -m cli.main
+```
+
+## 🔑 **Where to Get API Keys**
+
+| Provider | Free Tier | Get API Key | Notes |
+|----------|-----------|-------------|-------|
+| **OpenAI** | $5 credit | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | Best for GPT-4o models |
+| **Google** | Free tier available | [makersuite.google.com](https://makersuite.google.com/app/apikey) | Best for Gemini models |
+| **Anthropic** | $5 credit | [console.anthropic.com](https://console.anthropic.com/) | Best for Claude models |
+| **Finnhub** | Free tier: 60 calls/min | [finnhub.io](https://finnhub.io/dashboard) | Financial data (optional) |
+| **Alpha Vantage** | Free tier: 25 calls/day | [alphavantage.co](https://www.alphavantage.co/support/#api-key) | Market data (optional) |
+
+**Using the CLI:**
+```bash
+python -m cli.main
+```
+
+## ⚙️ Configuration
+
+TradingAgents uses a unified configuration system that supports multiple markets and deployment scenarios.
+
+### Environment Variables
+
+| Variable | Description | Default | Options |
+|----------|-------------|---------|---------|
+| `TRADINGAGENTS_MARKET` | Target market | `us` | `us`, `india` |
+| `TRADINGAGENTS_LLM_PROVIDER` | LLM provider | `openai` | `openai`, `google`, `anthropic`, `ollama` |
+| `TRADINGAGENTS_ONLINE_TOOLS` | Enable online data | `true` | `true`, `false` |
+| `TRADINGAGENTS_MAX_DEBATE_ROUNDS` | Agent debate rounds | `1` | Any positive integer |
+| `TRADINGAGENTS_DATA_DIR` | Data storage directory | `./data` | Any valid path |
+
+### Market-Specific Configuration
+
+**US Market Features:**
+- Yahoo Finance integration
+- Finnhub data sources  
+- Reddit sentiment analysis
+- SEC filings analysis
+
+**Indian Market Features:**
+- NSE/BSE stock data
+- Indian financial news (Economic Times, MoneyControl)
+- Indian market indices (Nifty 50, Sensex, Bank Nifty)
+- Sector-specific analysis
+
+## 🏗️ Architecture
+
+The framework employs a sophisticated multi-agent architecture:
+
+### Core Agents
+
+1. **Market Analysts** - Technical and fundamental analysis
+2. **News Analysts** - News sentiment and impact analysis  
+3. **Social Media Analysts** - Social sentiment tracking
+4. **Fundamental Analysts** - Company financials and valuation
+5. **Bull/Bear Researchers** - Debate-based decision making
+6. **Risk Managers** - Portfolio risk assessment
+7. **Traders** - Final execution decisions
+
+### Workflow
+
+```
+Input (Ticker + Date) → Analysts → Researchers → Risk Assessment → Trading Decision
+```
+
+## 🛠️ Recent Improvements
+
+### Fixed Issues ✅
+- ✅ **Class naming conflicts** - Standardized `StockstatsUtils` across all modules
+- ✅ **Configuration management** - Unified config system with environment support
+- ✅ **Import issues** - Removed duplicate imports and wildcard imports
+- ✅ **Error handling** - Proper exception handling with logging
+- ✅ **Hardcoded paths** - Environment-based path configuration
+
+### Enhanced Features ✅
+- ✅ **Market-agnostic main.py** - Automatic US/Indian market detection
+- ✅ **Robust error handling** - Comprehensive retry and fallback mechanisms
+- ✅ **Type safety** - Improved type hints and validation
+- ✅ **Logging system** - Centralized logging with configurable levels
 >
 > So we decided to fully open-source the framework. Looking forward to building impactful projects with you!
 

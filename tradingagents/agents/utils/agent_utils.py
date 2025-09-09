@@ -14,6 +14,20 @@ import tradingagents.dataflows.interface as interface
 from tradingagents.default_config import DEFAULT_CONFIG
 from langchain_core.messages import HumanMessage
 
+# Import Indian interface functions
+try:
+    from tradingagents.dataflows.indian_interface import (
+        get_indian_stock_data_online,
+        get_indian_company_info_online, 
+        get_indian_technical_analysis_online,
+        get_indian_financial_news_online,
+        get_indian_market_indices_online,
+        get_indian_peer_comparison_online
+    )
+    INDIAN_INTERFACE_AVAILABLE = True
+except ImportError:
+    INDIAN_INTERFACE_AVAILABLE = False
+
 
 def create_msg_delete():
     def delete_messages(state):
@@ -417,3 +431,133 @@ class Toolkit:
         )
 
         return openai_fundamentals_results
+
+    # ============ INDIAN MARKET TOOLS ============
+    
+    @staticmethod
+    @tool
+    def get_indian_stock_data_online(
+        symbol: Annotated[str, "Indian stock symbol (e.g., 'RELIANCE', 'TCS')"],
+        start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+        end_date: Annotated[str, "End date in yyyy-mm-dd format"],
+        exchange: Annotated[str, "NSE or BSE"] = "NSE"
+    ) -> str:
+        """
+        Retrieve Indian stock price data from Yahoo Finance with Indian market suffixes.
+        Args:
+            symbol (str): Indian stock symbol, e.g. RELIANCE, TCS, INFY
+            start_date (str): Start date in yyyy-mm-dd format
+            end_date (str): End date in yyyy-mm-dd format
+            exchange (str): NSE or BSE exchange
+        Returns:
+            str: Formatted stock price data for the Indian stock symbol
+        """
+        if not INDIAN_INTERFACE_AVAILABLE:
+            return "Indian market tools not available. Please install required dependencies."
+        
+        return get_indian_stock_data_online(symbol, start_date, end_date, exchange)
+
+    @staticmethod
+    @tool
+    def get_indian_company_info_online(
+        symbol: Annotated[str, "Indian stock symbol"],
+        exchange: Annotated[str, "NSE or BSE"] = "NSE"
+    ) -> str:
+        """
+        Get comprehensive information about an Indian company.
+        Args:
+            symbol (str): Indian stock symbol, e.g. RELIANCE, TCS
+            exchange (str): NSE or BSE exchange
+        Returns:
+            str: Formatted company information including financials and ratios
+        """
+        if not INDIAN_INTERFACE_AVAILABLE:
+            return "Indian market tools not available."
+        
+        return get_indian_company_info_online(symbol, exchange)
+
+    @staticmethod
+    @tool  
+    def get_indian_technical_analysis_online(
+        symbol: Annotated[str, "Indian stock symbol"],
+        curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
+        lookback_days: Annotated[int, "Number of days to analyze"] = 30,
+        exchange: Annotated[str, "NSE or BSE"] = "NSE"
+    ) -> str:
+        """
+        Get comprehensive technical analysis for Indian stocks including indicators and recommendations.
+        Args:
+            symbol (str): Indian stock symbol, e.g. RELIANCE, TCS
+            curr_date (str): Current date in yyyy-mm-dd format
+            lookback_days (int): Number of days to analyze, default 30
+            exchange (str): NSE or BSE exchange
+        Returns:
+            str: Formatted technical analysis report with trading recommendations
+        """
+        if not INDIAN_INTERFACE_AVAILABLE:
+            return "Indian technical analysis tools not available."
+        
+        return get_indian_technical_analysis_online(symbol, curr_date, lookback_days, exchange)
+
+    @staticmethod
+    @tool
+    def get_indian_financial_news_online(
+        symbol: Annotated[str, "Indian stock symbol"],
+        company_name: Annotated[str, "Company name"],
+        curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
+        lookback_days: Annotated[int, "Number of days to look back"] = 7
+    ) -> str:
+        """
+        Get Indian financial news for a specific company from multiple sources.
+        Args:
+            symbol (str): Indian stock symbol, e.g. RELIANCE, TCS
+            company_name (str): Full company name for better news search
+            curr_date (str): Current date in yyyy-mm-dd format
+            lookback_days (int): Number of days to look back, default 7
+        Returns:
+            str: Formatted news summary from Indian financial sources
+        """
+        if not INDIAN_INTERFACE_AVAILABLE:
+            return "Indian news tools not available."
+        
+        return get_indian_financial_news_online(symbol, company_name, curr_date, lookback_days)
+
+    @staticmethod
+    @tool
+    def get_indian_market_indices_online(
+        curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
+        lookback_days: Annotated[int, "Number of days to look back"] = 5
+    ) -> str:
+        """
+        Get Indian market indices data (Nifty 50, Sensex, Bank Nifty).
+        Args:
+            curr_date (str): Current date in yyyy-mm-dd format
+            lookback_days (int): Number of days to look back, default 5
+        Returns:
+            str: Formatted overview of major Indian market indices
+        """
+        if not INDIAN_INTERFACE_AVAILABLE:
+            return "Indian market tools not available."
+        
+        return get_indian_market_indices_online(curr_date, lookback_days)
+
+    @staticmethod
+    @tool
+    def get_indian_peer_comparison_online(
+        symbol: Annotated[str, "Indian stock symbol"],
+        peers: Annotated[str, "Comma-separated list of peer symbols"],
+        exchange: Annotated[str, "NSE or BSE"] = "NSE"
+    ) -> str:
+        """
+        Compare Indian stock with its industry peers on key financial metrics.
+        Args:
+            symbol (str): Indian stock symbol, e.g. RELIANCE, TCS
+            peers (str): Comma-separated peer symbols, e.g. "INFY,WIPRO,HCLTECH"
+            exchange (str): NSE or BSE exchange
+        Returns:
+            str: Formatted peer comparison table with financial ratios
+        """
+        if not INDIAN_INTERFACE_AVAILABLE:
+            return "Indian market tools not available."
+        
+        return get_indian_peer_comparison_online(symbol, peers, exchange)
