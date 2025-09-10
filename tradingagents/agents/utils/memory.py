@@ -1,20 +1,48 @@
 import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
+import os
 
 
 class FinancialSituationMemory:
     def __init__(self, name, config):
+        # Check if we're using Google provider and skip OpenAI client initialization
+        if config.get("llm_provider") == "google":
+            # Use Google embeddings or disable embeddings for now
+            self.embedding = None
+            self.client = None
+            self.chroma_client = chromadb.Client(Settings(allow_reset=True))
+            self.situation_collection = self.chroma_client.create_collection(name=name)
+            return
+            
+        # Original OpenAI logic
         if config["backend_url"] == "http://localhost:11434/v1":
             self.embedding = "nomic-embed-text"
         else:
             self.embedding = "text-embedding-3-small"
-        self.client = OpenAI(base_url=config["backend_url"])
+        
+        # Only create OpenAI client if we have the API key
+        api_key = os.getenv("OPENAI_API_KEY")
+        if api_key:
+            self.client = OpenAI(base_url=config["backend_url"], api_key=api_key)
+        else:
+            self.client = None
+            
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
         self.situation_collection = self.chroma_client.create_collection(name=name)
 
     def get_embedding(self, text):
-        """Get OpenAI embedding for a text"""
+        """Get embedding for a text (OpenAI or fallback)"""
+        
+        # If no client available (Google provider), return simple hash-based embedding
+        if self.client is None or self.embedding is None:
+            # Simple fallback: convert text to hash-based vector
+            import hashlib
+            hash_obj = hashlib.md5(text.encode())
+            hash_hex = hash_obj.hexdigest()
+            # Convert to simple embedding vector
+            embedding = [float(int(c, 16)) / 15.0 - 0.5 for c in hash_hex[:384]]  # 384-dim vector
+            return embedding
         
         response = self.client.embeddings.create(
             model=self.embedding, input=text
