@@ -6,4 +6,42 @@ src/
 eval_results/
 eval_data/
 *.egg-info/
+
+# Environment variables and API keys
 .env
+.env.local
+.env.*.local
+
+# Results and logs
+results/
+logs/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg

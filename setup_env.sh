@@ -32,7 +32,7 @@ echo "3. Anthropic (Claude)"
 # export TRADINGAGENTS_BACKEND_URL="https://api.anthropic.com"
 
 # Market Selection
-export TRADINGAGENTS_MARKET="us"  # Change to "india" for Indian markets
+export TRADINGAGENTS_MARKET="india"  # Change to "us" for US markets
 
 # Optional: Data source API keys for enhanced functionality
 # export FINNHUB_API_KEY="your-finnhub-api-key"

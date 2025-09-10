@@ -1,8 +1,10 @@
 from typing import Optional
 import datetime
 import typer
+import os
 from pathlib import Path
 from functools import wraps
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.spinner import Spinner
@@ -20,12 +22,79 @@ from rich import box
 from rich.align import Align
 from rich.rule import Rule
 
+# Load environment variables from .env file
+env_path = Path(__file__).parent.parent / '.env'
+if env_path.exists():
+    load_dotenv(env_path)
+    print(f"🔧 Loaded configuration from .env file")
+
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
+from tradingagents.indian_config import INDIAN_CONFIG
 from cli.models import AnalystType
 from cli.utils import *
 
 console = Console()
+
+def detect_llm_provider():
+    """Auto-detect available LLM provider for CLI."""
+    providers = {
+        "openai": "OPENAI_API_KEY",
+        "google": "GOOGLE_API_KEY", 
+        "anthropic": "ANTHROPIC_API_KEY"
+    }
+    
+    for provider, env_key in providers.items():
+        if os.getenv(env_key):
+            return provider
+    
+    return None
+
+def get_smart_config():
+    """Get intelligent configuration based on available APIs and market."""
+    import os
+    
+    # Detect market
+    market = os.getenv("TRADINGAGENTS_MARKET", "india").lower()
+    base_config = INDIAN_CONFIG.copy() if market == "india" else DEFAULT_CONFIG.copy()
+    
+    # Detect LLM provider
+    llm_provider = detect_llm_provider()
+    if not llm_provider:
+        console.print("❌ No LLM API keys found! Please set OPENAI_API_KEY, GOOGLE_API_KEY, or ANTHROPIC_API_KEY", style="red")
+        raise typer.Exit(1)
+    
+    # Configure based on detected provider
+    provider_configs = {
+        "openai": {
+            "llm_provider": "openai",
+            "deep_think_llm": "gpt-4o-mini", 
+            "quick_think_llm": "gpt-4o-mini",
+            "backend_url": "https://api.openai.com/v1"
+        },
+        "google": {
+            "llm_provider": "google",
+            "deep_think_llm": "gemini-2.0-flash",
+            "quick_think_llm": "gemini-2.0-flash", 
+            "backend_url": "https://generativelanguage.googleapis.com/v1"
+        },
+        "anthropic": {
+            "llm_provider": "anthropic",
+            "deep_think_llm": "claude-3-sonnet-20240229",
+            "quick_think_llm": "claude-3-haiku-20240307",
+            "backend_url": "https://api.anthropic.com"
+        }
+    }
+    
+    config = base_config.copy()
+    config.update(provider_configs[llm_provider])
+    config.update({
+        "market": market,
+        "online_tools": True,
+        "max_debate_rounds": 1
+    })
+    
+    return config, llm_provider, market
 
 app = typer.Typer(
     name="TradingAgents",
@@ -732,17 +801,30 @@ def extract_content_string(content):
         return str(content)
 
 def run_analysis():
-    # First get all user selections
+    # Get smart configuration and user selections
+    try:
+        smart_config, detected_provider, detected_market = get_smart_config()
+        console.print(f"🤖 Auto-detected: {detected_provider.upper()} LLM, {detected_market.upper()} market", style="green")
+    except Exception as e:
+        console.print(f"❌ Configuration error: {e}", style="red")
+        raise typer.Exit(1)
+    
     selections = get_user_selections()
 
-    # Create config with selected research depth
-    config = DEFAULT_CONFIG.copy()
+    # Create config with selected research depth and smart defaults
+    config = smart_config.copy()
     config["max_debate_rounds"] = selections["research_depth"]
     config["max_risk_discuss_rounds"] = selections["research_depth"]
-    config["quick_think_llm"] = selections["shallow_thinker"]
-    config["deep_think_llm"] = selections["deep_thinker"]
-    config["backend_url"] = selections["backend_url"]
-    config["llm_provider"] = selections["llm_provider"].lower()
+    
+    # Allow user overrides if they chose specific models
+    if selections.get("shallow_thinker"):
+        config["quick_think_llm"] = selections["shallow_thinker"]
+    if selections.get("deep_thinker"):
+        config["deep_think_llm"] = selections["deep_thinker"]
+    if selections.get("backend_url"):
+        config["backend_url"] = selections["backend_url"]
+    if selections.get("llm_provider"):
+        config["llm_provider"] = selections["llm_provider"].lower()
 
     # Initialize the graph
     graph = TradingAgentsGraph(

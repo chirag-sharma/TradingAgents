@@ -22,7 +22,7 @@ export ANTHROPIC_API_KEY="sk-ant-your-anthropic-api-key-here"
 export TRADINGAGENTS_LLM_PROVIDER="anthropic"
 
 # Market selection
-export TRADINGAGENTS_MARKET="us"  # or "india"
+export TRADINGAGENTS_MARKET="india"  # or "us"
 ```
 
 ### **Option 2: Setup Script 📜**
@@ -95,19 +95,19 @@ python validate_setup.py
 
 ## 🚀 **Quick Start Examples**
 
-### **US Market with OpenAI**
+### **Indian Market with OpenAI (Default)**
 ```bash
 export OPENAI_API_KEY="sk-your-key"
 export TRADINGAGENTS_LLM_PROVIDER="openai"
-export TRADINGAGENTS_MARKET="us"
+export TRADINGAGENTS_MARKET="india"
 python main.py
 ```
 
-### **Indian Market with Google**
+### **US Market with Google**
 ```bash
 export GOOGLE_API_KEY="your-key"
 export TRADINGAGENTS_LLM_PROVIDER="google" 
-export TRADINGAGENTS_MARKET="india"
+export TRADINGAGENTS_MARKET="us"
 python main.py
 ```
 
